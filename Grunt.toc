@@ -1,0 +1,10 @@
+## Interface: 30000
+## Title: Grunt
+## Notes: A warcraft addon that does those dumb menial tasks you hate doing yourself.
+## Author: Quaiche of Dragonblight
+## X-Category: Interface Enhancements
+## Version: 1.0
+## X-License: Apache 2.0
+
+tekKonfigAboutPanel.lua
+Grunt.lua
