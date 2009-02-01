@@ -13,6 +13,11 @@ Performs the following functions for you
 * Hide that annoying "Are you sure you want to Quit?" dialog
 * Skip gossip at vendors unless the ALT key is down
 
+h2. Disabling functions
+
+If you dont' want one of these functions, comment out the appropriate RegisterEvent
+call in the PLAYER_LOGIN event handler. It should be pretty easy to figure out. :)
+
 h2. License
 
 Copyright 2008 Quaiche
