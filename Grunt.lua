@@ -93,12 +93,12 @@ end
 
 function Grunt:PLAYER_REGEN_DISABLED()
 	-- Show nameplates when entering combat
-	ShowNameplates()
+	SetCVar("nameplateShowEnemies", 1)
 end
 
 function Grunt:PLAYER_REGEN_ENABLED()
 	-- Hide nameplates when leaving combat
-	HideNameplates()
+	SetCVar("nameplateShowEnemies", 0)
 end
 
 function Grunt:PLAYER_DEAD()
@@ -120,8 +120,9 @@ function Grunt:RESURRECT_REQUEST()
 	end
 end
 
-function Grunt:PARTY_INVITE_REQUEST(source)
+function Grunt:PARTY_INVITE_REQUEST(event, source)
 	-- Auto-accept invites from guildies or friends
+	Debug("PARTY_INVITE_REQUEST - " .. source)
 	local staticPopupFrame = GetStaticPopupFrameOfType("PARTY_INVITE")
 	if staticPopupFrame and (IsFriend(source) or IsGuildMember(source)) then
 		AcceptGroup()
