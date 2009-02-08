@@ -8,7 +8,7 @@ h2. Functions
 Performs the following functions for you
 * Auto-repop to graveyard if in a battleground and don't have a SS
 * Auto accept resurrect request
-* Decline all duels (not sure this is working right now)
+* Decline all duels (note: they are not declined, you just won't see them)
 * Auto-accept invites from guildies or friends
 * Hide that annoying "Are you sure you want to Quit?" dialog
 * Skip gossip at vendors unless the ALT key is down
