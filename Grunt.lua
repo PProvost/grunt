@@ -23,6 +23,9 @@ local CompleteQuest = _G.CompleteQuest
 Grunt = CreateFrame("Frame")
 Grunt:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, event, ...) end end)
 
+local debugf = tekDebug and tekDebug:GetFrame("Grunt")
+local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
+
 local function GetStaticPopupFrameOfType(type)
 	local staticPopupFrame
 	for i = 1, STATICPOPUP_NUMDIALOGS do
@@ -69,36 +72,38 @@ local function SkipVendorGossip()
 	end
 end
 
-local function QuestAutoTurnin()
-	-- local activeGossipQuests = { GetGossipActiveQuests() }
-	local i
-	local numQuestsInLog = GetNumQuestLogEntries()
+function Grunt:PLAYER_LOGIN()
+	LibStub("tekKonfig-AboutPanel").new(nil, "Grunt")
 
-	for i = 1,numQuestsInLog do
-		-- Note: We might need to actually check to see if the quest in the log is the one
-		-- this NPC is proffering. It all depends on if IsQuestCompletable already deals with
-		-- this or not.
-		SelectQuestLogEntry(i)
-		if IsQuestCompletable() then
-			-- SelectGossipActiveQuest (might not need to do this before the next step, not sure)
-			CompleteQuest()
-		end
-	end
+	-- Event handlers
+	self:RegisterEvent("PLAYER_DEAD") -- PvP repop
+	self:RegisterEvent("RESURRECT_REQUEST") -- Auto accept rez
+	self:RegisterEvent("PARTY_INVITE_REQUEST") -- Accept group invites from friends and guildies
+	self:RegisterEvent("GOSSIP_SHOW") -- Hide useless gossip unless Alt pressed
+	self:RegisterEvent("PLAYER_QUITING") -- No more "Are you sure you wanna quit?" dialog
+
+	-- Show/hide player nameplates when entering/leaving combat
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+
+	-- The ultimate duel disable... 
+	UIParent:UnregisterEvent("DUEL_REQUESTED")
+
 end
 
-function Grunt:PLAYER_LOGIN()
-	self:RegisterEvent("PLAYER_DEAD")
-	self:RegisterEvent("RESURRECT_REQUEST")
-	self:RegisterEvent("DUEL_REQUESTED")
-	self:RegisterEvent("PARTY_INVITE_REQUEST")
-	self:RegisterEvent("GOSSIP_SHOW")
-	self:RegisterEvent("PLAYER_QUITING")
+function Grunt:PLAYER_REGEN_DISABLED()
+	-- Show nameplates when entering combat
+	ShowNameplates()
+end
 
-	LibStub("tekKonfig-AboutPanel").new(nil, "Grunt")
+function Grunt:PLAYER_REGEN_ENABLED()
+	-- Hide nameplates when leaving combat
+	HideNameplates()
 end
 
 function Grunt:PLAYER_DEAD()
 	-- Auto-repop to graveyard if in a battleground and don't have a SS
+	-- TODO: Add Wintergrasp support
 	if (select(2,IsInInstance()) == "pvp") and not HasSoulstone() then
 		RepopMe()
 	end
@@ -115,19 +120,10 @@ function Grunt:RESURRECT_REQUEST()
 	end
 end
 
-function Grunt:DUEL_REQUESTED()
-	-- Decline all duels (not sure this is working right now)
-	local staticPopupFrame = GetStaticPopupFrameOfType("DUEL_REQUEST")
-	if staticPopupFrame then
-		CancelDuel()
-		staticPopupFrame:Hide()
-	end
-end
-
-function Grunt:PLAYER_INVITE_REQUEST()
+function Grunt:PARTY_INVITE_REQUEST(source)
 	-- Auto-accept invites from guildies or friends
 	local staticPopupFrame = GetStaticPopupFrameOfType("PARTY_INVITE")
-	if staticPopupFrame and (IsFriend(arg1) or IsGuildMember(arg1)) then
+	if staticPopupFrame and (IsFriend(source) or IsGuildMember(source)) then
 		AcceptGroup()
 		staticPopupFrame:Hide()
 	end
@@ -146,7 +142,6 @@ function Grunt:GOSSIP_SHOW()
 	-- Skip gossip at vendors unless the ALT key is down
 	if not IsAltKeyDown() then
 		SkipVendorGossip()
-		-- QuestAutoTurnin()
 	end
 end
 

@@ -5,6 +5,7 @@
 ## X-Category: Interface Enhancements
 ## Version: 1.0
 ## X-License: Apache 2.0
+## OptionalDeps: tekDebug
 
 tekKonfigAboutPanel.lua
 Grunt.lua
