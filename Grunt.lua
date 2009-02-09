@@ -130,8 +130,9 @@ function Grunt:PARTY_INVITE_REQUEST(event, source)
 	end
 end
 
-function Grunt:PLAYER_QUITTING()
+function Grunt:PLAYER_QUITING()
 	-- Hide that annoying "Are you sure you want to Quit?" dialog
+	Debug("PLAYER_QUITING")
 	local staticPopupFrame = GetStaticPopupFrameOfType("QUIT")
 	if staticPopupFrame then
 		ForceQuit()
