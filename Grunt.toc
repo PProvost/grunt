@@ -7,5 +7,6 @@
 ## X-License: Apache 2.0
 ## OptionalDeps: tekDebug
 
+LibStub.lua
 tekKonfigAboutPanel.lua
 Grunt.lua
