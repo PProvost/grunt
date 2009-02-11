@@ -27,14 +27,14 @@ local debugf = tekDebug and tekDebug:GetFrame("Grunt")
 local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
 
 local function GetStaticPopupFrameOfType(type)
-	local staticPopupFrame
+	local frame
 	for i = 1, STATICPOPUP_NUMDIALOGS do
-		staticPopupFrame = getglobal("StaticPopup" .. i)
-		if staticPopupFrame.which == type then
-			return staticPopupFrame
+		frame = getglobal("StaticPopup" .. i)
+		if frame.which == type then
+			return frame
 		end
 	end
-	return false
+	return nil
 end
 
 local function IsFriend(name)
@@ -77,7 +77,6 @@ function Grunt:PLAYER_LOGIN()
 
 	-- Event handlers
 	self:RegisterEvent("PLAYER_DEAD") -- PvP repop
-	self:RegisterEvent("RESURRECT_REQUEST") -- Auto accept rez
 	self:RegisterEvent("PARTY_INVITE_REQUEST") -- Accept group invites from friends and guildies
 	self:RegisterEvent("GOSSIP_SHOW") -- Hide useless gossip unless Alt pressed
 	self:RegisterEvent("PLAYER_QUITING") -- No more "Are you sure you wanna quit?" dialog
@@ -88,7 +87,6 @@ function Grunt:PLAYER_LOGIN()
 
 	-- The ultimate duel disable... 
 	UIParent:UnregisterEvent("DUEL_REQUESTED")
-
 end
 
 function Grunt:PLAYER_REGEN_DISABLED()
@@ -109,35 +107,22 @@ function Grunt:PLAYER_DEAD()
 	end
 end
 
-function Grunt:RESURRECT_REQUEST()
-	-- Auto accept resurrect request
-	if arg1 ~= "Chained Spirit" and GetCorpseRecoveryDelay() == 0 then
-		local staticPopupFrame = GetStaticPopupFrameOfType("RESURRECT_NO_SICKNESS")
-		if staticPopupFrame then
-			AcceptResurrect()
-			staticPopupFrame:Hide()
-		end
-	end
-end
-
-function Grunt:PARTY_INVITE_REQUEST(event, source)
+function Grunt:PARTY_INVITE_REQUEST(event, sender)
 	-- Auto-accept invites from guildies or friends
-	Debug("PARTY_INVITE_REQUEST - " .. source)
-	local staticPopupFrame = GetStaticPopupFrameOfType("PARTY_INVITE")
-	if staticPopupFrame and (IsFriend(source) or IsGuildMember(source)) then
+	Debug("PARTY_INVITE_REQUEST - " .. tostring(sender))
+	if (IsFriend(sender) or IsGuildMember(sender)) then
 		AcceptGroup()
-		staticPopupFrame:Hide()
+		local frame = GetStaticPopupFrameOfType("PARTY_INVITE")
+		if frame then frame:Hide() end
 	end
 end
 
 function Grunt:PLAYER_QUITING()
 	-- Hide that annoying "Are you sure you want to Quit?" dialog
 	Debug("PLAYER_QUITING")
-	local staticPopupFrame = GetStaticPopupFrameOfType("QUIT")
-	if staticPopupFrame then
-		ForceQuit()
-		staticPopupFrame:Hide()
-	end
+	local frame = GetStaticPopupFrameOfType("QUIT")
+	if frame then frame:Hide() end
+	ForceQuit()
 end
 
 function Grunt:GOSSIP_SHOW()
