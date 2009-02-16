@@ -26,15 +26,14 @@ Grunt:SetScript("OnEvent", function(self, event, ...) if self[event] then return
 local debugf = tekDebug and tekDebug:GetFrame("Grunt")
 local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
 
-local function GetStaticPopupFrameOfType(type)
+local function HideStaticPopupFrame(type)
 	local frame
 	for i = 1, STATICPOPUP_NUMDIALOGS do
 		frame = getglobal("StaticPopup" .. i)
 		if frame.which == type then
-			return frame
+			frame:Hide()
 		end
 	end
-	return nil
 end
 
 local function IsFriend(name)
@@ -81,6 +80,8 @@ function Grunt:PLAYER_LOGIN()
 	self:RegisterEvent("GOSSIP_SHOW") -- Hide useless gossip unless Alt pressed
 	self:RegisterEvent("PLAYER_QUITING") -- No more "Are you sure you wanna quit?" dialog
 
+	-- self:RegisterEvent("RESURRECT_REQUEST")
+
 	-- Show/hide player nameplates when entering/leaving combat
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -99,6 +100,14 @@ function Grunt:PLAYER_REGEN_ENABLED()
 	SetCVar("nameplateShowEnemies", 0)
 end
 
+function Grunt:RESURRECT_REQUEST(name)
+	Debug("RESURRECT_REQUEST from " .. name)
+	if name ~= "Chained Spirit" and GetCorpseRecoveryDelay() == 0 --[[ and not UnitAffectingCombat(name) ]] then
+		AcceptResurrect()
+		HideStaticPopupFrame("RESURRECT_NO_SICKNESS")
+	end
+end
+
 function Grunt:PLAYER_DEAD()
 	-- Auto-repop to graveyard if in a battleground and don't have a SS
 	-- TODO: Add Wintergrasp support
@@ -112,16 +121,14 @@ function Grunt:PARTY_INVITE_REQUEST(event, sender)
 	Debug("PARTY_INVITE_REQUEST - " .. tostring(sender))
 	if (IsFriend(sender) or IsGuildMember(sender)) then
 		AcceptGroup()
-		local frame = GetStaticPopupFrameOfType("PARTY_INVITE")
-		if frame then frame:Hide() end
+		HideStaticPopupFrame("PARTY_INVITE")
 	end
 end
 
 function Grunt:PLAYER_QUITING()
 	-- Hide that annoying "Are you sure you want to Quit?" dialog
 	Debug("PLAYER_QUITING")
-	local frame = GetStaticPopupFrameOfType("QUIT")
-	if frame then frame:Hide() end
+	HideStaticPopupFrame("QUIT")
 	ForceQuit()
 end
 
