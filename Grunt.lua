@@ -59,12 +59,15 @@ local function SkipVendorGossip()
 	local mcText = "You see large cavernous tunnels"
 	local text = GetGossipText()
 
+
 	if text == bwlText or strsub(text, 1, 31) == mcText then
+		Debug("Skipping vendor gossip (1)")
 		SelectGossipOption(1)
 	else
 		local gossipOptions = { GetGossipOptions() }
 		for i = 2, getn(gossipOptions), 2 do
 			if (gossipOptions[i] == "taxi" or gossipOptions[i] == "battlemaster" or gossipOptions[i] == "banker") then
+				Debug("Skipping vendor gossip (2)")
 				SelectGossipOption(i / 2)
 			end
 		end
@@ -101,6 +104,7 @@ function Grunt:PLAYER_REGEN_ENABLED()
 end
 
 function Grunt:RESURRECT_REQUEST(name)
+	-- TODO: Make this happen only if the person casting it on me isn't in combat
 	Debug("RESURRECT_REQUEST from " .. name)
 	if name ~= "Chained Spirit" and GetCorpseRecoveryDelay() == 0 --[[ and not UnitAffectingCombat(name) ]] then
 		AcceptResurrect()

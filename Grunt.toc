@@ -2,10 +2,11 @@
 ## Title: Grunt
 ## Notes: A warcraft addon that does those dumb menial tasks you hate doing yourself.
 ## Author: Quaiche of Dragonblight
-## X-Category: Interface Enhancements
-## Version: 1.0
-## X-License: Apache 2.0
 ## OptionalDeps: tekDebug
+## Version: 1.0
+## X-Category: Interface Enhancements
+## X-Credits: Tekkub, Industrial, Tuller, Kergoth and many others who's hacks I've been borrowing for years
+## X-License: Apache 2.0
 
 LibStub.lua
 tekKonfigAboutPanel.lua
