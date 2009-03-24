@@ -16,10 +16,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ]]
 
-local SelectQuestLogEntry = _G.SelectQuestLogEntry
-local IsQuestCompletable = _G.IsQuestCompletable
-local CompleteQuest = _G.CompleteQuest
-
 Grunt = CreateFrame("Frame")
 Grunt:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, event, ...) end end)
 
@@ -114,7 +110,6 @@ end
 
 function Grunt:PLAYER_DEAD()
 	-- Auto-repop to graveyard if in a battleground and don't have a SS
-	-- TODO: Add Wintergrasp support
 	if (select(2,IsInInstance()) == "pvp") and not HasSoulstone() then
 		RepopMe()
 	end
@@ -122,7 +117,6 @@ end
 
 function Grunt:PARTY_INVITE_REQUEST(event, sender)
 	-- Auto-accept invites from guildies or friends
-	Debug("PARTY_INVITE_REQUEST - " .. tostring(sender))
 	if (IsFriend(sender) or IsGuildMember(sender)) then
 		AcceptGroup()
 		HideStaticPopupFrame("PARTY_INVITE")
@@ -131,7 +125,6 @@ end
 
 function Grunt:PLAYER_QUITING()
 	-- Hide that annoying "Are you sure you want to Quit?" dialog
-	Debug("PLAYER_QUITING")
 	HideStaticPopupFrame("QUIT")
 	ForceQuit()
 end
