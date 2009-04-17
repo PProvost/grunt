@@ -10,7 +10,6 @@ Performs the following functions for you
 * Decline all duels (note: they are not declined, you just won't see them)
 * Auto-accept invites from guildies or friends
 * Hide that annoying "Are you sure you want to Quit?" dialog
-* Skip gossip at vendors unless the ALT key is down
 * Show/Hide enemy nameplates when entering/leaving combat
 
 h2. Disabling functions
