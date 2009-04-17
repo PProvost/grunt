@@ -22,26 +22,6 @@ Grunt:SetScript("OnEvent", function(self, event, ...) if self[event] then return
 local debugf = tekDebug and tekDebug:GetFrame("Grunt")
 local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
 
-local function HideStaticPopupFrame(type)
-	local frame
-	for i = 1, STATICPOPUP_NUMDIALOGS do
-		frame = getglobal("StaticPopup" .. i)
-		if frame.which == type then
-			frame:Hide()
-		end
-	end
-end
-
-local function ClickStaticPopupFrame(type, button)
-	local frame
-	for i = 1, STATICPOPUP_NUMDIALOGS do
-		frame = getglobal("StaticPopup" .. i)
-		if frame.which == type then
-			StaticPopup_OnClick(frame, button)
-		end
-	end
-end
-
 local function IsFriend(name)
 	for i = 1, GetNumFriends() do
 		if GetFriendInfo(i) == name then
@@ -94,23 +74,19 @@ end
 function Grunt:PARTY_INVITE_REQUEST(event, sender)
 	-- Auto-accept invites from guildies or friends
 	if (IsFriend(sender) or IsGuildMember(sender)) then
-		local frame
-		for i = 1, STATICPOPUP_NUMDIALOGS do
-			frame = getglobal("StaticPopup" .. i)
-			if frame.which == "PARTY_INVITE" then
+		local frame = StaticPopup_FindVisible("PARTY_INVITE")
+		if frame then
 				frame.inviteAccepted = true
 				AcceptGroup()
 				frame:Hide()
-			end
 		end
 	end
 end
 
 function Grunt:PLAYER_QUITING()
 	-- Hide that annoying "Are you sure you want to Quit?" dialog
-	HideStaticPopupFrame("QUIT")
+	StaticPopup_Hide("QUIT")
 	ForceQuit()
 end
 
 if IsLoggedIn() then Grunt:PLAYER_LOGIN() else Grunt:RegisterEvent("PLAYER_LOGIN") end
-
