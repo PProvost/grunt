@@ -32,6 +32,16 @@ local function HideStaticPopupFrame(type)
 	end
 end
 
+local function ClickStaticPopupFrame(type, button)
+	local frame
+	for i = 1, STATICPOPUP_NUMDIALOGS do
+		frame = getglobal("StaticPopup" .. i)
+		if frame.which == type then
+			StaticPopup_OnClick(frame, button)
+		end
+	end
+end
+
 local function IsFriend(name)
 	for i = 1, GetNumFriends() do
 		if GetFriendInfo(i) == name then
@@ -50,36 +60,13 @@ local function IsGuildMember(name)
 	return false
 end
 
-local function SkipVendorGossip()
-	local bwlText = "The orb's markings match the brand on your hand."
-	local mcText = "You see large cavernous tunnels"
-	local text = GetGossipText()
-
-
-	if text == bwlText or strsub(text, 1, 31) == mcText then
-		Debug("Skipping vendor gossip (1)")
-		SelectGossipOption(1)
-	else
-		local gossipOptions = { GetGossipOptions() }
-		for i = 2, getn(gossipOptions), 2 do
-			if (gossipOptions[i] == "taxi" or gossipOptions[i] == "battlemaster" or gossipOptions[i] == "banker") then
-				Debug("Skipping vendor gossip (2)")
-				SelectGossipOption(i / 2)
-			end
-		end
-	end
-end
-
 function Grunt:PLAYER_LOGIN()
 	LibStub("tekKonfig-AboutPanel").new(nil, "Grunt")
 
 	-- Event handlers
 	self:RegisterEvent("PLAYER_DEAD") -- PvP repop
 	self:RegisterEvent("PARTY_INVITE_REQUEST") -- Accept group invites from friends and guildies
-	self:RegisterEvent("GOSSIP_SHOW") -- Hide useless gossip unless Alt pressed
 	self:RegisterEvent("PLAYER_QUITING") -- No more "Are you sure you wanna quit?" dialog
-
-	-- self:RegisterEvent("RESURRECT_REQUEST")
 
 	-- Show/hide player nameplates when entering/leaving combat
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -99,27 +86,23 @@ function Grunt:PLAYER_REGEN_ENABLED()
 	SetCVar("nameplateShowEnemies", 0)
 end
 
-function Grunt:RESURRECT_REQUEST(name)
-	-- TODO: Make this happen only if the person casting it on me isn't in combat
-	Debug("RESURRECT_REQUEST from " .. name)
-	if name ~= "Chained Spirit" and GetCorpseRecoveryDelay() == 0 --[[ and not UnitAffectingCombat(name) ]] then
-		AcceptResurrect()
-		HideStaticPopupFrame("RESURRECT_NO_SICKNESS")
-	end
-end
-
 function Grunt:PLAYER_DEAD()
 	-- Auto-repop to graveyard if in a battleground and don't have a SS
-	if (select(2,IsInInstance()) == "pvp") and not HasSoulstone() then
-		RepopMe()
-	end
+	if (select(2,IsInInstance()) == "pvp") and not HasSoulstone() then RepopMe() end
 end
 
 function Grunt:PARTY_INVITE_REQUEST(event, sender)
 	-- Auto-accept invites from guildies or friends
 	if (IsFriend(sender) or IsGuildMember(sender)) then
-		AcceptGroup()
-		HideStaticPopupFrame("PARTY_INVITE")
+		local frame
+		for i = 1, STATICPOPUP_NUMDIALOGS do
+			frame = getglobal("StaticPopup" .. i)
+			if frame.which == "PARTY_INVITE" then
+				frame.inviteAccepted = true
+				AcceptGroup()
+				frame:Hide()
+			end
+		end
 	end
 end
 
@@ -127,13 +110,6 @@ function Grunt:PLAYER_QUITING()
 	-- Hide that annoying "Are you sure you want to Quit?" dialog
 	HideStaticPopupFrame("QUIT")
 	ForceQuit()
-end
-
-function Grunt:GOSSIP_SHOW()
-	-- Skip gossip at vendors unless the ALT key is down
-	if not IsAltKeyDown() then
-		SkipVendorGossip()
-	end
 end
 
 if IsLoggedIn() then Grunt:PLAYER_LOGIN() else Grunt:RegisterEvent("PLAYER_LOGIN") end

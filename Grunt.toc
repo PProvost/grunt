@@ -1,4 +1,4 @@
-## Interface: 30000
+## Interface: 30100
 ## Title: Grunt
 ## Notes: A warcraft addon that does those dumb menial tasks you hate doing yourself.
 ## Author: Quaiche of Dragonblight
