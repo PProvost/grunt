@@ -52,6 +52,9 @@ function Grunt:PLAYER_LOGIN()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 
+	-- Skip vendor gossip code
+	self:RegisterEvent("GOSSIP_SHOW")
+
 	-- The ultimate duel disable... 
 	UIParent:UnregisterEvent("DUEL_REQUESTED")
 end
@@ -87,6 +90,31 @@ function Grunt:PLAYER_QUITING()
 	-- Hide that annoying "Are you sure you want to Quit?" dialog
 	StaticPopup_Hide("QUIT")
 	ForceQuit()
+end
+
+function Grunt:GOSSIP_SHOW()
+	if not IsAltKeyDown() then
+		self:SkipVendorGossip()
+	end
+end
+
+function Grunt:SkipVendorGossip()
+	local bwlText = "The orb's markings match the brand on your hand."
+	local mcText = "You see large cavernous tunnels"
+	local text = GetGossipText()
+
+	if test == bwlText or strsub(text, 1, 31) == mcText then
+		Debug("Skipping vendor gossip")
+		SelectGossipOption(1)
+	else
+		local gossipOptions = { GetGossipOptions() }
+		for i = 2, #gossipOptions, 2 do
+			if gossipOptions[i] == "taxi" or gossipOptions[i] == "battlemaster" or gossipOptions[i] == "banker" then
+				Debug("Skipping vendor gossip (2)")
+				SelectGossipOption(i/2)
+			end
+		end
+	end
 end
 
 if IsLoggedIn() then Grunt:PLAYER_LOGIN() else Grunt:RegisterEvent("PLAYER_LOGIN") end
