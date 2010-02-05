@@ -75,8 +75,16 @@ function Grunt:PLAYER_DEAD()
 end
 
 function Grunt:PARTY_INVITE_REQUEST(event, sender)
-	-- Auto-accept invites from guildies or friends
-	if (IsFriend(sender) or IsGuildMember(sender)) then
+	-- Don't auto accept if we're in a queue
+	local mode, submode = GetLFGMode();
+	if ( mode ) then
+		if ( mode == "queued" or mode == "listed" or mode == "rolecheck" ) then
+			return
+		end
+	end
+
+	-- Auto-accept invites from guildies or friends but only when not in LFG queue
+	if (IsFriend(sender) or IsGuildMember(sender)) and mode ~= 'queued' and mode ~= 'rolecheck' then
 		local frame = StaticPopup_FindVisible("PARTY_INVITE")
 		if frame then
 				frame.inviteAccepted = true
